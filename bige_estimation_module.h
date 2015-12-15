@@ -7,7 +7,7 @@
 
 #ifndef _BIGE_ESTIMATION_MODULE_H
 #define _BIGE_ESTIMATION_MODULE_H
-#include "dige_struct.h"
+#include "bige_struct.h"
 
 void bige_estimation_pr(Population* pop,int size);/*对种群pop的个体进行收敛度的评估*/
 

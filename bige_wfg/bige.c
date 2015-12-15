@@ -111,7 +111,7 @@ void crowdingDegreeEstimation(Population* pop,int size)
     Individual* ind=&(pop->ind[0]);
     for(p=0;p<size;p++)
     {
-        ind->crowdingDegree=getCrowdingDegree(pop,p,size);
+        ind->cr:owdingDegree=getCrowdingDegree(pop,p,size);
         ind++;
     }
     return;
