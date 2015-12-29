@@ -31,7 +31,7 @@ typedef struct LayerIndSet
 {
     int indNo;
     struct LayerIndSet* next;
-}LayerIndSet;
+}LayerInd;
 
 typedef struct DominIndSet
 {

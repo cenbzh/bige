@@ -8,7 +8,6 @@
 #ifndef _BIGE_OPERATOR_MODULE_H
 #define _BIGE_OPERATOR_MODULE_H
 #include "bige_struct.h"
-#include "bige_define.h"
 
 void bige_init_pop(Population* pop,int size);/*初始化种群*/
 
@@ -16,13 +15,13 @@ void bige_generate_offspring(Population* oldpop_ptr,Population* newpop_ptr);/*�
 
 void bige_mate_select(Population* oldpop_ptr,Population* matepop_ptr);/*繁殖选择*/
 
-void bige_env_select(Population* oldpop_ptr,Population* newpop_ptr,Population* nextpop_str, LayerList* list, char* problem);/*环境选择*/
+void bige_env_select(Population* oldpop_ptr,Population* newpop_ptr,Population* nextpop_ptr, LayerList* list, char* problem);/*环境选择*/
 
 Individual* bige_tournament(Individual* d1,Individual* d2);/*锦标赛选择*/
 
 void bige_copy_pop(Population* des_ptr,Population* scr_ptr);/*复制种群*/
 
-void bige_comp_ind(Individual* d1,Individual* d2);/*判断两个个体的占优关系*/
+int bige_comp_ind(Individual* d1,Individual* d2);/*判断两个个体的占优关系*/
 
 void bige_copy_ind(Individual* des_ptr,Individual* scr_ptr);/*复制个体*/
 

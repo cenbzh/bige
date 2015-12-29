@@ -10,9 +10,11 @@
 #include "bige_define.h"
 #include <string.h>
 #include <stdlib.h>
-#include "bige_external.h"
 /*这里可以选择不同的计算距离方法，示例为欧氏距离*/
 
+extern int nfunc;
+extern double shMatrix[2*MAXPOP][2*MAXPOP]i;
+extern double radiu;
 double bige_distance(Population* pop,int p,int q)
 {
     int k;
