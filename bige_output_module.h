@@ -8,6 +8,6 @@
 #ifndef _BIGE_OUTPUT_MODULE_H
 #define _BIGE_OUTPUT_MODULE_H
 
-void bige_output(Population* pop,FILE* fp,int type);/*输出函数*/
+void bige_output(Population* pop,FILE* fp);/*输出函数*/
 
 #endif

@@ -11,11 +11,11 @@
 
 void bige_init_pop(Population* pop,int size);/*初始化种群*/
 
-void bige_generate_offspring(Population* oldpop_ptr,Population* newpop_ptr);/*产生后代*/
+void bige_generate_offspring(Population* matepop_ptr,Population* newpop_ptr);/*产生后代*/
 
 void bige_mate_select(Population* oldpop_ptr,Population* matepop_ptr);/*繁殖选择*/
 
-void bige_env_select(Population* oldpop_ptr,Population* newpop_ptr,Population* nextpop_ptr, LayerList* list, char* problem);/*环境选择*/
+void bige_env_select(Population* oldpop_ptr,Population* newpop_ptr,Population* nextpop_ptr, LayerList* list, char* problem,char* testdata);/*环境选择*/
 
 Individual* bige_tournament(Individual* d1,Individual* d2);/*锦标赛选择*/
 

@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "bige_objectives_module.h"
 
 void bige_init_pop(Population* pop,int size)
 {
@@ -77,10 +78,10 @@ void bige_mate_select(Population* oldpop_ptr,Population* matepop_ptr)
     return;
 }
 
-void bige_env_select(Population* oldpop_ptr,Population* newpop_ptr,Population* nextpop_ptr, LayerList* list, char* problem)
+void bige_env_select(Population* oldpop_ptr,Population* newpop_ptr,Population* nextpop_ptr, LayerList* list, char* problem,char* testdata)
 {
     bige_union_pop(oldpop_ptr,newpop_ptr);
-    bige_getobjects(oldpop_ptr,2*popsize,problem);
+    bige_getobjects(oldpop_ptr,2*popsize,problem,testdata);
     gpopsize=2*popsize;
     bige_estimation_pr(oldpop_ptr,gpopsize);
     bige_estimation_cd(oldpop_ptr,gpopsize);
