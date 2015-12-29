@@ -8,6 +8,8 @@
 #ifndef _BIGE_OUTPUT_MODULE_H
 #define _BIGE_OUTPUT_MODULE_H
 
+#include "bige_struct.h"
+
 void bige_output(Population* pop,FILE* fp);/*输出函数*/
 
 #endif

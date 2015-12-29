@@ -7,7 +7,6 @@
 
 #include<stdio.h>
 #include "bige_output_module.h"
-#include "bige_struct.h"
 #include "bige_external.h"
 void bige_output(Population* pop,FILE* fp)
 {

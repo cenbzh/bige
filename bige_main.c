@@ -22,6 +22,7 @@
 int nvar;
 int ngener;
 int isLimit;
+double lim_r[MAXVAR][2];
 double pcross;
 double pmut_r;
 int nfunc;

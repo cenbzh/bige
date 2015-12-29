@@ -9,5 +9,5 @@
 #define _BIGE_DEFINE_H
 #define MAXPOP 300
 #define MAXVAR 500
-#define MAXFUNC 100
+#define MAXFUN 100
 #endif
