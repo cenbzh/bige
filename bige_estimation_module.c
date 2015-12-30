@@ -11,6 +11,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include "bige_external.h"
+
+extern int calln;
+extern int equaln;
+//static double weight[2*MAXPOP][MAXFUN];
+
 /*这里可以选择不同的计算距离方法，示例为欧氏距离*/
 
 double bige_distance(Population* pop,int p,int q)
@@ -34,17 +39,17 @@ void bige_estimation_pr(Population* pop,int size)
     Individual* ind;
     for(p=0;p<size;p++)//计算种群个体的收敛度
     {
-        sum=0;
+        ind=&(pop->ind[p]);
+       /* sum=0;
         ind=&(pop->ind[p]);
         for(k=0;k<nfunc;k++)
         {
             sum+=bige_value_normalization(pop,p,k);
-        }
-        ind->proximity=sum;
+        }*/
+        ind->proximity=bige_chebyshev(pop,p);
     }
     return;
 }
-
 
 /*这里可以选择不同的评估方法，示例为论文的评估方法*/
 void bige_estimation_cd(Population* pop,int size)
@@ -64,7 +69,7 @@ double bige_get_ind_cd(Population* pop,int p,int size)
 {
     int q;
     double sum=0;
-    for(q-0;q<size;q++)
+    for(q=0;q<size;q++)
     {
         if(q==p)
         {
@@ -141,4 +146,29 @@ void bige_share_function(Population* pop,int size)
         }
     }
     return;
+}
+
+
+/*使用切比雪夫距离*/
+double bige_chebyshev(Population* pop,int p)
+{
+    calln++;
+    int j;
+    //memset(weight,0,sizeof(weight));
+    Individual* ind;
+    ind=&(pop->ind[p]);
+    double sum=0;
+    for(j=0;j<nfunc;j++)
+    {
+        if(ind->objs[j]==pop->minObj[j])
+        {
+            equaln++;
+            return 0;
+        }
+        else
+        {
+            sum+=1.0/(ind->objs[j]-pop->minObj[j]);
+        }
+    }
+    return 1.0/sum;
 }

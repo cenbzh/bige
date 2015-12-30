@@ -11,5 +11,6 @@
 #include "bige_struct.h"
 
 void bige_output(Population* pop,FILE* fp);/*输出函数*/
+void bige_prcd_out(Population* pop,FILE* fp);
 
 #endif

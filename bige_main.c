@@ -17,7 +17,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#define DIR_PATH "/home/cenbzh/Documents/paper/bige/c/obj5/"
+#define DIR_PATH "/home/cenbzh/Documents/paper/bige/c/obj10/"
 
 int nvar;
 int ngener;
@@ -29,7 +29,7 @@ int nfunc;
 int popsize;
 double radiu;
 double di,dim;
-int shMatrix[2*MAXPOP][2*MAXPOP];
+double shMatrix[2*MAXPOP][2*MAXPOP];
 int gpopsize;
 Population oldPops;
 Population matePops;
@@ -37,7 +37,12 @@ Population newPops;
 LayerList layerlist;
 double maxObjs[MAXFUN];
 
-void bige_engin(FILE* fp,char* problem,char* testdata)
+
+/*用来测试的变量*/
+int calln;
+int equaln;
+
+void bige_engin(FILE* fp,FILE* fp1,char* problem,char* testdata)
 {
     int i;
     Population* oldpop_ptr=&oldPops;
@@ -55,6 +60,7 @@ void bige_engin(FILE* fp,char* problem,char* testdata)
         bige_getobjects(oldpop_ptr,popsize,problem,testdata);
         bige_estimation_pr(oldpop_ptr,popsize);
         bige_estimation_cd(oldpop_ptr,popsize);
+        bige_prcd_out(oldpop_ptr,fp1);
         bige_mate_select(oldpop_ptr,matepop_ptr);
         bige_generate_offspring(matepop_ptr,newpop_ptr);
         bige_getobjects(newpop_ptr,popsize,problem,testdata);
@@ -64,7 +70,10 @@ void bige_engin(FILE* fp,char* problem,char* testdata)
         bige_clear_list(list_ptr);
     }
     bige_getobjects(oldpop_ptr,popsize,problem,testdata);
+    bige_estimation_pr(oldpop_ptr,popsize);
+    bige_estimation_cd(oldpop_ptr,popsize);
     bige_output(oldpop_ptr,fp);
+    bige_prcd_out(oldpop_ptr,fp1);
     for(i=0;i<nfunc;i++)
     {
         if(maxObjs[i]<oldpop_ptr->maxObj[i])
@@ -77,31 +86,42 @@ void bige_engin(FILE* fp,char* problem,char* testdata)
 
 int main(int argc,char* argv[])
 {
+
     if(argc!=3)
     {
         printf("usage: %s <problem> <problemtype>",argv[0]);
         exit(-1);
     }
+    equaln=0;
+    calln=0;
+
     int i;
     srand(time(NULL));
     FILE* infile;
     FILE* outfile;
+    FILE* prcdfile;
+
     char inName[200];
     strcpy(inName,DIR_PATH);
     strcat(inName,"input.txt");
     char outName[200];
-    char format[10];
+    char prcdName[200];
     memset(maxObjs,0,sizeof(maxObjs));
-    int runtime=1;
+    int runtime=30;
     strcpy(outName,DIR_PATH);
     strcat(outName,argv[1]);
-    strcat(outName,"finalfit.txt");
+    strcat(outName,"/chebyshev_finalfit1.txt");
     outfile=fopen(outName,"w");
+
+    strcpy(prcdName,DIR_PATH);
+    strcat(prcdName,argv[1]);
+    strcat(prcdName,"/chebyshev_prcd1.txt");
+    prcdfile=fopen(prcdName,"w");
     for(i=0;i<runtime;i++)
     {
         infile=fopen(inName,"r");
         bige_input(infile);
-        bige_engin(outfile,argv[1],argv[2]);
+        bige_engin(outfile,prcdfile,argv[1],argv[2]);
         if(i==runtime-1)
         {
             int j;
@@ -112,6 +132,8 @@ int main(int argc,char* argv[])
         }
         fclose(infile);
     }
+    fclose(prcdfile);
     fclose(outfile);
+    printf("call times: %d, equal times: %d\n",calln, equaln);
     return 0;
 }

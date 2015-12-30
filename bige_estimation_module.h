@@ -21,4 +21,6 @@ double bige_value_normalization(Population* pop,int p,int k);/*对下标p的个�
 
 void bige_share_function(Population* pop,int size);/*计算种群个体的共享值*/
 
+double bige_chebyshev(Population* pop,int p);
+
 #endif

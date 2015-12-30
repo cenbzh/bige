@@ -28,3 +28,16 @@ void bige_output(Population* pop,FILE* fp)
     }
     return;
 }
+
+
+void bige_prcd_out(Population* pop, FILE* fp)
+{
+    int i,j;
+    Individual* ind;
+    for(i=0;i<popsize;i++)
+    {
+        ind=&(pop->ind[i]);
+        fprintf(fp,"%12lf%12lf\n",ind->proximity,ind->crowdingDegree);
+    }
+    return;
+}
