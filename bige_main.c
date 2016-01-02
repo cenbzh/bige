@@ -110,12 +110,12 @@ int main(int argc,char* argv[])
     int runtime=30;
     strcpy(outName,DIR_PATH);
     strcat(outName,argv[1]);
-    strcat(outName,"/chebyshev_finalfit1.txt");
+    strcat(outName,"/chebyshev_angle_finalfit1.txt");
     outfile=fopen(outName,"w");
 
     strcpy(prcdName,DIR_PATH);
     strcat(prcdName,argv[1]);
-    strcat(prcdName,"/chebyshev_prcd1.txt");
+    strcat(prcdName,"/chebyshev_angle_prcd1.txt");
     prcdfile=fopen(prcdName,"w");
     for(i=0;i<runtime;i++)
     {

@@ -4,7 +4,7 @@
 	> Mail: cenbzh@gmail.com
 	> Created Time: 2015年12月15日 星期二 20时21分33秒
  ************************************************************************/
-
+#include <stdio.h>
 #include "bige_estimation_module.h"
 #include <math.h>
 #include "bige_define.h"
@@ -12,10 +12,12 @@
 #include <stdlib.h>
 #include "bige_external.h"
 
+#define PI 3.1415926
 extern int calln;
 extern int equaln;
 //static double weight[2*MAXPOP][MAXFUN];
-
+static double angles[2*MAXPOP][2*MAXPOP];
+static int flags[2*MAXPOP];
 /*这里可以选择不同的计算距离方法，示例为欧氏距离*/
 
 double bige_distance(Population* pop,int p,int q)
@@ -35,17 +37,10 @@ double bige_distance(Population* pop,int p,int q)
 void bige_estimation_pr(Population* pop,int size)
 {
     int p,k;
-    double sum=0;
     Individual* ind;
     for(p=0;p<size;p++)//计算种群个体的收敛度
     {
         ind=&(pop->ind[p]);
-       /* sum=0;
-        ind=&(pop->ind[p]);
-        for(k=0;k<nfunc;k++)
-        {
-            sum+=bige_value_normalization(pop,p,k);
-        }*/
         ind->proximity=bige_chebyshev(pop,p);
     }
     return;
@@ -54,18 +49,21 @@ void bige_estimation_pr(Population* pop,int size)
 /*这里可以选择不同的评估方法，示例为论文的评估方法*/
 void bige_estimation_cd(Population* pop,int size)
 {
-    bige_share_function(pop,size);
+    //bige_share_function(pop,size);
+    bige_angle_assign(pop,size);
     int p,k,q;
     Individual* ind;
     for(p=0;p<size;p++)
     {
         ind=&(pop->ind[p]);
-        ind->crowdingDegree=bige_get_ind_cd(pop,p,size);
+        //ind->crowdingDegree=bige_share_ind_cd(pop,p,size);
+        //ind->crowdingDegree=bige_angle_ind_cd(pop,p,size);
+        ind->crowdingDegree=5*PI-bige_angle_ind_cd_kclosest(pop,p,size);
     }
     return;
 
 }
-double bige_get_ind_cd(Population* pop,int p,int size)
+double bige_share_ind_cd(Population* pop,int p,int size)
 {
     int q;
     double sum=0;
@@ -152,7 +150,7 @@ void bige_share_function(Population* pop,int size)
 /*使用切比雪夫距离*/
 double bige_chebyshev(Population* pop,int p)
 {
-    calln++;
+    //calln++;
     int j;
     //memset(weight,0,sizeof(weight));
     Individual* ind;
@@ -162,7 +160,7 @@ double bige_chebyshev(Population* pop,int p)
     {
         if(ind->objs[j]==pop->minObj[j])
         {
-            equaln++;
+            //equaln++;
             return 0;
         }
         else
@@ -171,4 +169,115 @@ double bige_chebyshev(Population* pop,int p)
         }
     }
     return 1.0/sum;
+}
+
+/*求和*/
+double bige_sum(Population* pop,int p)
+{
+    int j;
+    double sum=0;
+    for(j=0;j<nfunc;j++)
+    {
+        sum+=bige_value_normalization(pop,p,j);
+    }
+    return sum;
+}
+
+/*计算种群个体的角度*/
+double bige_compute_angle(Population* pop,int p,int q)
+{
+    double sum1=0;
+    double sum2=0;
+    double sum3=0;
+    int j;
+    Individual* ind1=&(pop->ind[p]);
+    Individual* ind2=&(pop->ind[q]);
+    for(j=0;j<nfunc;j++)
+    {
+        sum1+=(ind1->objs[j]-pop->minObj[j])*(ind2->objs[j]-pop->minObj[j]);
+        sum2+=(ind1->objs[j]-pop->minObj[j])*(ind1->objs[j]-pop->minObj[j]);
+        sum3+=(ind2->objs[j]-pop->minObj[j])*(ind2->objs[j]-pop->minObj[j]);
+    }
+    return acos(sum1/pow(sum2*sum3,1.0/2));
+}
+
+double bige_angle_ind_cd(Population* pop,int p,int size)
+{
+    double limit=PI/5;
+    int i,j;
+    Individual *indp;
+    indp=&(pop->ind[p]);
+    double count=0;
+    double angle;
+    for(i=0;i<size;i++)
+    {
+        if(i==p)
+        {
+            continue;
+        }
+        calln++;
+        angle=bige_compute_angle(pop,p,i);
+        //printf("%lf\n",angle);
+        if(angle<=limit)
+        {
+            count++;
+            equaln++;
+        }
+    }
+    return count;
+}
+
+/*选出k个最小值加起来,然后作为多样性的评估值*/
+
+double bige_angle_ind_cd_kclosest(Population* pop,int p,int size)
+{
+    int k;
+    double sum=0;
+    int i;
+    int mini;
+    memset(flags,0,sizeof(flags));
+    for(k=0;k<10;k++)
+    {
+        double min=-1;
+        for(i=0;i<size;i++)
+        {
+            if(i==p||flags[i]==1)
+            {
+                continue;
+            }
+            if(min==-1)
+            {
+                min=angles[p][i];
+                mini=i;
+            }
+            else
+            {
+                if(min>angles[p][i])
+                {
+                    min=angles[p][i];
+                    mini=i;
+                }
+            }
+        }
+        sum+=min;
+        flags[mini]=1;
+    }
+    return sum;
+}
+
+double bige_angle_assign(Population* pop,int size)
+{
+    memset(angles,0,sizeof(angles));
+    int i,j;
+    double angle;
+    for(i=0;i<size;i++)
+    {
+        for(j=i+1;j<size;j++)
+        {
+            angle=bige_compute_angle(pop,i,j);
+            angles[i][j]=angle;
+            angles[j][i]=angle;
+        }
+    }
+    return 0;
 }

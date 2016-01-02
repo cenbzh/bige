@@ -651,7 +651,7 @@ int main()
   //FILECONTENTS *f = readFile("E:\\matlab\\NSGA3-test results\\5D-8D-10D(140w)\\UF13");
   //FILECONTENTS *f = readFile("E:\\matlab\\MOEA-D-test results\\MOEA-D-DE\\5D-8D-10D(140w)\\UF13");
  // FILECONTENTS *f = readFile("E:\\matlab\\SPEA2+SDE-test results\\5D-8D-10D(140w)\\UF13");
- FILECONTENTS *f=readFile("./obj10/WFG9/chebyshev_finalfit.txt");
+ FILECONTENTS *f=readFile("./obj10/WFG9/chebyshev_angle_finalfit1.txt");
   //FILECONTENTS *f = readFile("E:\\matlab\\CMODE\\CMODE\\5D-8D-10D(140w)\\UF13");
   
   //FILECONTENTS *f = readFile("E:\\matlab\\CMDE+KNN-SDE-test results\\5D-8D-10D\\UF13");
