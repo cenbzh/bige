@@ -635,7 +635,7 @@ int main()
   //double rep[5] = {6092, 6019, 6629, 5763, 4090};
   for(int i=0;i<dim;++i)
   {
-  	ref.objectives[i]=2*(i+1)+1;//rep[i];
+  	ref.objectives[i]=2.2*(i+1);//rep[i];
   }    
   double refsum=1.0;
   for (int i = 0; i < dim; i++) 
@@ -651,8 +651,9 @@ int main()
   //FILECONTENTS *f = readFile("E:\\matlab\\NSGA3-test results\\5D-8D-10D(140w)\\UF13");
   //FILECONTENTS *f = readFile("E:\\matlab\\MOEA-D-test results\\MOEA-D-DE\\5D-8D-10D(140w)\\UF13");
  // FILECONTENTS *f = readFile("E:\\matlab\\SPEA2+SDE-test results\\5D-8D-10D(140w)\\UF13");
- FILECONTENTS *f=readFile("./obj10/WFG9/chebyshev_finalfit1.txt");
-  //FILECONTENTS *f = readFile("E:\\matlab\\CMODE\\CMODE\\5D-8D-10D(140w)\\UF13");
+ //FILECONTENTS *f=readFile("./obj10/WFG3/chebyshev_angle_share_finalfit_g=300.txt");
+ FILECONTENTS *f=readFile("obj10/WFG2/origin_finalfit_g=300.txt");
+ //FILECONTENTS *f = readFile("E:\\matlab\\CMODE\\CMODE\\5D-8D-10D(140w)\\UF13");
   
   //FILECONTENTS *f = readFile("E:\\matlab\\CMDE+KNN-SDE-test results\\5D-8D-10D\\UF13");
   // find the biggest fronts
@@ -709,7 +710,7 @@ int main()
       n = f->fronts[i].n;
       safe = 0;
       frontHv[i]=hv(f->fronts[i])/refsum;
-      printf("hv(%d) = %.10f\n", 1, frontHv[i]); 
+      printf("hv(%d) = %.10f\n", i+1, frontHv[i]); 
       
       averhv+=frontHv[i];
       if(frontHv[i]>maxhv){maxhv=frontHv[i];}

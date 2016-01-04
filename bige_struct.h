@@ -12,6 +12,7 @@
 typedef struct Individual
 {
     int rank;
+    int rank2;
     int dominated;
     double xreal[MAXVAR];
     double objs[MAXFUN];

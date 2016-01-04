@@ -43,4 +43,10 @@ void bige_add_layerind(LayerList* list,int i,int n);
 
 void bige_add_dominind(LayerList* list,int i,int j);
 
+int bige_origin_comp_ind(Individual* d1,Individual* d2);
+
+void bige_bigoals_nondom_sort(Population* pop,LayerIndSet* layer,LayerList* list);
+
+void bige_bigoals_keepalive(Population* oldpop_ptr,LayerList* list,Population* nextpop_ptr,int start);
+
 #endif

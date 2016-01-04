@@ -42,6 +42,7 @@ void bige_estimation_pr(Population* pop,int size)
     {
         ind=&(pop->ind[p]);
         ind->proximity=bige_chebyshev(pop,p);
+        //ind->proximity=bige_sum(pop,p);
     }
     return;
 }
@@ -49,16 +50,16 @@ void bige_estimation_pr(Population* pop,int size)
 /*这里可以选择不同的评估方法，示例为论文的评估方法*/
 void bige_estimation_cd(Population* pop,int size)
 {
-    //bige_share_function(pop,size);
-    bige_angle_assign(pop,size);
+    bige_share_function(pop,size);
+    //bige_angle_assign(pop,size);
     int p,k,q;
     Individual* ind;
     for(p=0;p<size;p++)
     {
         ind=&(pop->ind[p]);
-        //ind->crowdingDegree=bige_share_ind_cd(pop,p,size);
+        ind->crowdingDegree=bige_share_ind_cd(pop,p,size);
         //ind->crowdingDegree=bige_angle_ind_cd(pop,p,size);
-        ind->crowdingDegree=5*PI-bige_angle_ind_cd_kclosest(pop,p,size);
+        //ind->crowdingDegree=bige_angle_ind_cd_kclosest(pop,p,size);
     }
     return;
 
@@ -107,7 +108,10 @@ void bige_share_function(Population* pop,int size)
         {
             indj=&(pop->ind[j]);
             dis=bige_distance(pop,i,j);
-            if(dis>radiu)
+            //dis=bige_compute_angle(pop,i,j);
+            //double radiu1=acos(radiu);
+            double radiu1=radiu;
+            if(dis>radiu1)
             {
                 shMatrix[i][j]=0;
                 shMatrix[j][i]=0;
@@ -121,24 +125,24 @@ void bige_share_function(Population* pop,int size)
                     rnk=rand()/(1.0*RAND_MAX);
                     if(rnk==0.5)
                     {
-                        shMatrix[i][j]=pow(0.5*(1-dis/radiu),2);
-                        shMatrix[j][i]=pow(1.5*(1-dis/radiu),2);
+                        shMatrix[i][j]=pow(0.5*(1-dis/radiu1),2);
+                        shMatrix[j][i]=pow(1.5*(1-dis/radiu1),2);
                     }
                     else
                     {
-                        shMatrix[i][j]=pow(1.5*(1-dis/radiu),2);
-                        shMatrix[j][i]=pow(0.5*(1-dis/radiu),2);
+                        shMatrix[i][j]=pow(1.5*(1-dis/radiu1),2);
+                        shMatrix[j][i]=pow(0.5*(1-dis/radiu1),2);
                     }
                 }
                 else if(pri<prj)
                 {
-                    shMatrix[i][j]=pow(0.5*(1-dis/radiu),2);
-                    shMatrix[j][i]=pow(1.5*(1-dis/radiu),2);
+                    shMatrix[i][j]=pow(0.5*(1-dis/radiu1),2);
+                    shMatrix[j][i]=pow(1.5*(1-dis/radiu1),2);
                 }
                 else
                 {
-                    shMatrix[j][i]=pow(0.5*(1-dis/radiu),2);
-                    shMatrix[i][j]=pow(1.5*(1-dis/radiu),2);
+                    shMatrix[j][i]=pow(0.5*(1-dis/radiu1),2);
+                    shMatrix[i][j]=pow(1.5*(1-dis/radiu1),2);
                 }
             }
         }
@@ -156,6 +160,7 @@ double bige_chebyshev(Population* pop,int p)
     Individual* ind;
     ind=&(pop->ind[p]);
     double sum=0;
+    double fj;
     for(j=0;j<nfunc;j++)
     {
         if(ind->objs[j]==pop->minObj[j])
@@ -165,7 +170,8 @@ double bige_chebyshev(Population* pop,int p)
         }
         else
         {
-            sum+=1.0/(ind->objs[j]-pop->minObj[j]);
+            fj=bige_value_normalization(pop,p,j);
+            sum+=1.0/(fj+0.05);
         }
     }
     return 1.0/sum;
@@ -192,11 +198,18 @@ double bige_compute_angle(Population* pop,int p,int q)
     int j;
     Individual* ind1=&(pop->ind[p]);
     Individual* ind2=&(pop->ind[q]);
+    double f1;
+    double f2;
     for(j=0;j<nfunc;j++)
     {
-        sum1+=(ind1->objs[j]-pop->minObj[j])*(ind2->objs[j]-pop->minObj[j]);
-        sum2+=(ind1->objs[j]-pop->minObj[j])*(ind1->objs[j]-pop->minObj[j]);
-        sum3+=(ind2->objs[j]-pop->minObj[j])*(ind2->objs[j]-pop->minObj[j]);
+        f1=bige_value_normalization(pop,p,j);
+        f2=bige_value_normalization(pop,q,j);
+        sum1+=f1*f2;
+        sum2+=f1*f1;
+        sum3+=f2*f2;
+        //sum1+=(ind1->objs[j]-pop->minObj[j])*(ind2->objs[j]-pop->minObj[j]);
+        //sum2+=(ind1->objs[j]-pop->minObj[j])*(ind1->objs[j]-pop->minObj[j]);
+        //sum3+=(ind2->objs[j]-pop->minObj[j])*(ind2->objs[j]-pop->minObj[j]);
     }
     return acos(sum1/pow(sum2*sum3,1.0/2));
 }
@@ -235,8 +248,9 @@ double bige_angle_ind_cd_kclosest(Population* pop,int p,int size)
     double sum=0;
     int i;
     int mini;
+    int K=30;
     memset(flags,0,sizeof(flags));
-    for(k=0;k<10;k++)
+    for(k=0;k<K;k++)
     {
         double min=-1;
         for(i=0;i<size;i++)
@@ -259,7 +273,7 @@ double bige_angle_ind_cd_kclosest(Population* pop,int p,int size)
                 }
             }
         }
-        sum+=min;
+        sum+=1/(min+K/2.0);
         flags[mini]=1;
     }
     return sum;

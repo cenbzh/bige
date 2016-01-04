@@ -92,6 +92,15 @@ void bige_env_select(Population* oldpop_ptr,Population* newpop_ptr,Population* n
 
 Individual* bige_tournament(Individual* d1,Individual* d2)
 {
+    int rr=bige_origin_comp_ind(d1,d2);
+    if(rr==1)
+    {
+        return d1;
+    }
+    else if(rr==-1)
+    {
+        return d2;
+    }
     int r=bige_comp_ind(d1,d2);
     if(r>0)
     {
@@ -392,7 +401,7 @@ void bige_nondominate_sort(Population* pop,LayerList* list)
                 continue;
             }
             indj=&(pop->ind[j]);
-            int comp=bige_comp_ind(indi,indj);
+            int comp=bige_origin_comp_ind(indi,indj);
             if(comp>0)
             {
                 bige_add_dominind(list,i,j);
@@ -481,24 +490,17 @@ void bige_keepalive(Population* pop,LayerList* list, Population* nextpop_ptr)
     }
     else
     {
+        extern LayerList layerlist2;
         int num=list->layerIndNum[i]; 
         inum-=num;
         layerind=list->layers[i];
-        while(inum<=popsize)
+        LayerList* list2=&(layerlist2);
+        bige_init_list(list2);
+        bige_bigoals_nondom_sort(pop,layerind,list2);
+        bige_bigoals_keepalive(pop,list2,nextpop_ptr,inum);
+        bige_clear_list(list2);
+        /*while(inum<=popsize)
         {
-           /* int index=rand()%num;
-            if(flags[index]!=0)
-            {
-                continue;
-            }
-            flags[index]=1;
-            j=0;
-            layerind=list->layers[i];
-            while(j<index)
-            {
-                layerind=layerind->next;
-                j++;
-            }*/
             indno=layerind->indNo;
             indo=&(pop->ind[indno]);
             indm=&(nextpop_ptr->ind[k]);
@@ -506,9 +508,9 @@ void bige_keepalive(Population* pop,LayerList* list, Population* nextpop_ptr)
             k++;
             inum++;
             layerind=layerind->next;
-        }
+        }*/
     }
-    nextpop_ptr->maxrank=i+1;
+    nextpop_ptr->maxrank+=i+1;
 }
 
 void bige_clear_list(LayerList* list)
@@ -565,4 +567,156 @@ void bige_add_dominind(LayerList* list, int i,int j)
     node->next=list->dominset[i];
     list->dominset[i]=node;
     return;
+}
+
+
+int bige_origin_comp_ind(Individual* ind1, Individual* ind2)
+{
+    int i;
+    int flag1=0;
+    int flag2=0;
+    for(i=0;i<nfunc;i++)
+    {
+        if(ind1->objs[i]<ind2->objs[i]&& flag2==0)
+        {
+            flag2=1;
+        }
+        if(ind1->objs[i]>ind2->objs[i]&&flag1==0)
+        {
+            flag1=1;
+        }
+    }
+    if(flag1==0&&flag2==1)
+    {
+        return 1;
+    }
+    if(flag2==0&&flag1==1)
+    {
+        return -1;
+    }
+    return 0;
+}
+
+void bige_bigoals_nondom_sort(Population* oldpop_ptr,LayerIndSet* layer,LayerList* list)
+{
+    int nlayer=0;
+    int i,j;
+    Individual* indi,*indj;
+    LayerIndSet* layer_ptri;
+    LayerIndSet* layer_ptrj;
+    DominIndSet* dominInd_ptr;
+    int indnoi,indnoj;
+    for(layer_ptri=layer;layer_ptri!=NULL;layer_ptri=layer_ptri->next)
+    {
+        indnoi=layer_ptri->indNo;
+        indi=&(oldpop_ptr->ind[indnoi]);
+        indi->dominated=0;
+        for(layer_ptrj=layer;layer_ptrj!=NULL;layer_ptrj=layer_ptrj->next)
+        {
+            if(layer_ptri==layer_ptrj)
+            {
+                continue;
+            }
+            indnoj=layer_ptrj->indNo;
+            indj=&(oldpop_ptr->ind[indnoj]);
+            int comp=bige_comp_ind(indi,indj);
+            if(comp>0)
+            {
+                bige_add_dominind(list,indnoi,indnoj);
+            }
+            else if(comp<0)
+            {
+                indi->dominated++;
+            }
+        }
+        if(indi->dominated==0)
+        {
+            bige_add_layerind(list,indnoi,nlayer);
+            indi->rank2=nlayer+1;
+        }
+    }
+
+    LayerIndSet* layer_ptr=list->layers[nlayer];
+    while(layer_ptr!=NULL)
+    {
+        nlayer++;
+        LayerIndSet* temp=layer_ptr;
+        while(temp!=NULL)
+        {
+            dominInd_ptr=list->dominset[temp->indNo];
+            while(dominInd_ptr!=NULL)
+            {
+                int jj=dominInd_ptr->indNo;
+                oldpop_ptr->ind[jj].dominated-=1;
+                if(oldpop_ptr->ind[jj].dominated==0)
+                {
+                    oldpop_ptr->ind[jj].rank2=nlayer+1;
+                    bige_add_layerind(list,jj,nlayer);
+                }
+                dominInd_ptr=dominInd_ptr->next;
+            }
+            temp=temp->next;
+        }
+        layer_ptr=list->layers[nlayer];
+    }
+    list->nlayer=nlayer;
+    return;
+}
+
+
+void bige_bigoals_keepalive(Population* oldpop_ptr,LayerList* list,Population* nextpop_ptr,int start)
+{
+    int i=0;
+    int k=start;
+    int indno;
+    int count=start;
+    count+=list->layerIndNum[i];
+    LayerIndSet* layerind;
+    Individual* indo;
+    Individual* indn;
+    while(count<popsize)
+    {
+        layerind=list->layers[i];
+        while(layerind!=NULL)
+        {
+            indno=layerind->indNo;
+            indo=&(oldpop_ptr->ind[indno]);
+            indn=&(nextpop_ptr->ind[k]);
+            bige_copy_ind(indn,indo);
+            layerind=layerind->next;
+            k++;
+        }
+        i++;
+        count+=list->layerIndNum[i];
+    }
+    if(count==popsize)
+    {
+        layerind=list->layers[i];
+        while(layerind!=NULL)
+        {
+            indno=layerind->indNo;
+            indo=&(oldpop_ptr->ind[indno]);
+            indn=&(nextpop_ptr->ind[k]);
+            bige_copy_ind(indn,indo);
+            layerind=layerind->next;
+            k++;
+        }
+    }
+    else
+    {
+        int num=list->layerIndNum[i];
+        count-=num;
+        layerind=list->layers[i];
+        while(count<=popsize)
+        {
+            indno=layerind->indNo;
+            indo=&(oldpop_ptr->ind[indno]);
+            indn=&(nextpop_ptr->ind[k]);
+            bige_copy_ind(indn,indo);
+            k++;
+            count++;
+            layerind=layerind->next;
+        }
+    }
+    nextpop_ptr->maxrank=i+1;
 }
